@@ -1,0 +1,38 @@
+# dependencies
+node_modules
+
+# env files
+.env
+.env.*
+
+# build outputs
+dist
+build
+.next
+out
+
+# logs
+logs
+*.log
+pnpm-debug.log*
+
+# prisma generated
+.prisma-client
+/generated/prisma
+
+# turbo
+.turbo
+
+# vscode
+.vscode
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# coverage
+coverage
+
+# temp
+tmp
+temp
