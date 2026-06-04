@@ -36,6 +36,7 @@ export const refreshService = async (refreshToken: string) => {
     const newAccessToken = generateAccessToken(
       session.user.id,
       session.user.role,
+      session.user.email,
     );
 
     const newRefreshToken = generateRefreshToken(session.id);

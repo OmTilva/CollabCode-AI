@@ -26,6 +26,12 @@ export const loginService = async (data: LoginInput) => {
     throw new Error("Invalid credentials");
   }
 
+  await prisma.session.deleteMany({
+    where: {
+      userId: user.id,
+    },
+  });
+
   const session = await prisma.session.create({
     data: {
       userId: user.id,
@@ -34,7 +40,7 @@ export const loginService = async (data: LoginInput) => {
     },
   });
 
-  const accessToken = generateAccessToken(user.id, user.role);
+  const accessToken = generateAccessToken(user.id, user.role, user.email);
 
   const refreshToken = generateRefreshToken(session.id);
 

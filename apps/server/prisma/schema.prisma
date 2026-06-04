@@ -18,6 +18,30 @@ enum Role {
   USER
 }
 
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum ProjectRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum ProjectVisibility {
+  PRIVATE
+  TEAM
+  PUBLIC
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
 model User {
   id String @id @default(cuid())
 
@@ -35,13 +59,154 @@ model User {
   sessions            Session[]
   verificationTokens  VerificationToken[]
   passwordResetTokens PasswordResetToken[]
+
+  teamMemberships    TeamMember[]
+  projectMemberships ProjectMember[]
+
+  ownedTeams Team[] @relation("TeamOwner")
+
+  invitationsSent TeamInvite[] @relation("InviteSender")
+  teamInvites     TeamInvite[]
+  acceptedInvites TeamInvite[] @relation("AcceptedInvite")
+
+  ownedProjects       Project[]       @relation("ProjectOwner")
+  createdProjects     Project[]       @relation("ProjectCreator")
+  projectMembersAdded ProjectMember[] @relation("ProjectMemberAddedBy")
+}
+
+model Team {
+  id String @id @default(cuid())
+
+  name String
+  slug String @unique
+
+  description String?
+
+  ownerId String
+  owner   User   @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members  TeamMember[]
+  projects Project[]
+  invites  TeamInvite[]
+
+  @@index([slug])
+}
+
+model TeamMember {
+  id String @id @default(cuid())
+
+  teamId String
+  userId String
+
+  role TeamRole @default(MEMBER)
+
+  joinedAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+model Project {
+  id String @id @default(cuid())
+
+  name String
+  slug String
+
+  description String?
+
+  visibility ProjectVisibility @default(PRIVATE)
+  status     ProjectStatus     @default(ACTIVE)
+
+  createdById String
+
+  ownerId String
+  owner   User   @relation("ProjectOwner", fields: [ownerId], references: [id])
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  createdBy User @relation("ProjectCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships ProjectMember[]
+
+  @@unique([teamId, slug])
+  @@index([teamId])
+  @@index([ownerId])
+  @@index([createdById])
+}
+
+model ProjectMember {
+  id String @id @default(cuid())
+
+  projectId String
+  userId    String
+
+  role ProjectRole @default(VIEWER)
+
+  addedById String?
+  joinedAt  DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  addedBy User? @relation("ProjectMemberAddedBy", fields: [addedById], references: [id])
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([addedById])
+}
+
+model TeamInvite {
+  id String @id @default(cuid())
+
+  email String
+
+  token String @unique
+
+  role TeamRole @default(MEMBER)
+
+  expiresAt DateTime
+
+  accepted     Boolean   @default(false)
+  acceptedById String?
+  acceptedBy   User?     @relation("AcceptedInvite", fields: [acceptedById], references: [id])
+  acceptedAt   DateTime?
+
+  createdAt DateTime @default(now())
+
+  teamId String
+
+  invitedById String
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  invitedBy User    @relation("InviteSender", fields: [invitedById], references: [id], onDelete: Cascade)
+  user      User?   @relation(fields: [userId], references: [id])
+  userId    String?
+
+  @@unique([teamId, email])
+  @@index([teamId])
+  @@index([email])
 }
 
 model Session {
   id String @id @default(cuid())
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   refreshToken String
 
@@ -49,6 +214,7 @@ model Session {
   ipAddress String?
 
   expiresAt DateTime
+
   createdAt DateTime @default(now())
 }
 
@@ -58,9 +224,11 @@ model VerificationToken {
   token String
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   expiresAt DateTime
+
   createdAt DateTime @default(now())
 }
 
@@ -70,8 +238,10 @@ model PasswordResetToken {
   token String
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   expiresAt DateTime
+
   createdAt DateTime @default(now())
 }

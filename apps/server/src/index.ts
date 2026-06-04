@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 
 import authRoutes from "@/modules/auth/routes/auth.routes.js";
+import teamRoutes from "@/modules/team/routes/team.routes.js";
+import projectRoutes from "./modules/project/routes/project.routes.js";
 
 const app = express();
 
@@ -30,7 +32,8 @@ app.get("/api/v1/health", (_, res) => {
 
 // routes
 app.use("/api/v1/auth", authRoutes);
-
+app.use("/api/v1/team", teamRoutes);
+app.use("/api/v1", projectRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
