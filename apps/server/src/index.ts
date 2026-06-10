@@ -7,6 +7,8 @@ import morgan from "morgan";
 import authRoutes from "@/modules/auth/routes/auth.routes.js";
 import teamRoutes from "@/modules/team/routes/team.routes.js";
 import projectRoutes from "./modules/project/routes/project.routes.js";
+import fileRoutes from "@/modules/file/routes/file.routes.js";
+import activityRoutes from "@/modules/activity/routes/activity.routes.js";
 
 const app = express();
 
@@ -34,6 +36,8 @@ app.get("/api/v1/health", (_, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/team", teamRoutes);
 app.use("/api/v1", projectRoutes);
+app.use("/api/v1", fileRoutes);
+app.use("/api/v1", activityRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

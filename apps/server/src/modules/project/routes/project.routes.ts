@@ -60,7 +60,6 @@ router.patch(
   authenticate,
   requireProjectAccess,
   requireProjectOwner,
-
   updateProjectMemberController,
 );
 
@@ -81,13 +80,9 @@ router.get(
 
 router.post(
   "/team/:teamSlug/project/:projectSlug/transfer-ownership",
-
   authenticate,
-
   requireProjectAccess,
-
   requireProjectOwner,
-
   transferProjectOwnershipController,
 );
 export default router;

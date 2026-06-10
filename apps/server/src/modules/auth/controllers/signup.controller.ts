@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
-
+import { Response } from "express";
+import { AuthRequest } from "@/middleware/auth.middleware.js";
 import { signupSchema } from "../validators/auth.validator.js";
 
 import { signupService } from "../services/signup.service.js";
 
-export const signupController = async (req: Request, res: Response) => {
+export const signupController = async (req: AuthRequest, res: Response) => {
   try {
     const validatedData = signupSchema.parse(req.body);
 

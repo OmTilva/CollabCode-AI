@@ -9,7 +9,8 @@ export const getAvailableMembersController = async (
   res: Response,
 ) => {
   try {
-    const { teamSlug, projectSlug } = req.params;
+    const teamSlug = req.params.teamSlug as string;
+    const projectSlug = req.params.projectSlug as string;
 
     const members = await getAvailableMembersService(teamSlug, projectSlug);
 

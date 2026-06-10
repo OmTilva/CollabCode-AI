@@ -42,6 +42,29 @@ enum ProjectStatus {
   ARCHIVED
 }
 
+enum ActivityType {
+  TEAM_CREATED
+
+  PROJECT_CREATED
+
+  PROJECT_MEMBER_ADDED
+  PROJECT_MEMBER_REMOVED
+
+  FILE_CREATED
+  FILE_RENAMED
+  FILE_MOVED
+  FILE_DELETED
+
+  FOLDER_CREATED
+  FOLDER_RENAMED
+  FOLDER_MOVED
+  FOLDER_DELETED
+
+  FILE_RESTORED
+
+  PROJECT_OWNERSHIP_TRANSFERRED
+}
+
 model User {
   id String @id @default(cuid())
 
@@ -72,6 +95,12 @@ model User {
   ownedProjects       Project[]       @relation("ProjectOwner")
   createdProjects     Project[]       @relation("ProjectCreator")
   projectMembersAdded ProjectMember[] @relation("ProjectMemberAddedBy")
+
+  createdFiles File[] @relation("FileCreator")
+  updatedFiles File[] @relation("FileUpdater")
+
+  createdFileVersions FileVersion[] @relation("FileVersionCreator")
+  activityLogs        ActivityLog[]
 }
 
 model Team {
@@ -88,9 +117,10 @@ model Team {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members  TeamMember[]
-  projects Project[]
-  invites  TeamInvite[]
+  members      TeamMember[]
+  projects     Project[]
+  invites      TeamInvite[]
+  activityLogs ActivityLog[]
 
   @@index([slug])
 }
@@ -134,10 +164,14 @@ model Project {
 
   createdBy User @relation("ProjectCreator", fields: [createdById], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   memberships ProjectMember[]
+
+  folders Folder[]
+  files   File[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  activityLogs ActivityLog[]
 
   @@unique([teamId, slug])
   @@index([teamId])
@@ -199,6 +233,116 @@ model TeamInvite {
   @@unique([teamId, email])
   @@index([teamId])
   @@index([email])
+}
+
+model Folder {
+  id String @id @default(cuid())
+
+  name String
+
+  projectId String
+  parentId  String?
+
+  createdById String?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  parent Folder? @relation("FolderHierarchy", fields: [parentId], references: [id])
+
+  children Folder[] @relation("FolderHierarchy")
+
+  files File[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, parentId, name])
+  @@index([projectId])
+  @@index([parentId])
+}
+
+model File {
+  id String @id @default(cuid())
+
+  name String
+
+  extension String?
+
+  content String @default("")
+
+  projectId String
+  folderId  String?
+
+  lastOpenedAt DateTime?
+
+  createdById String
+  updatedById String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  folder Folder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  createdBy User @relation("FileCreator", fields: [createdById], references: [id])
+
+  updatedBy User @relation("FileUpdater", fields: [updatedById], references: [id])
+
+  versions FileVersion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, folderId, name, extension])
+  @@index([projectId])
+  @@index([folderId])
+}
+
+model FileVersion {
+  id String @id @default(cuid())
+
+  fileId String
+
+  version Int
+
+  content String
+
+  createdById String
+
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  createdBy User @relation("FileVersionCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([fileId, version])
+  @@index([fileId])
+}
+
+model ActivityLog {
+  id String @id @default(cuid())
+
+  type ActivityType
+
+  message String
+
+  userId String
+
+  projectId String?
+
+  teamId String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  team Team? @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([teamId])
+  @@index([createdAt])
 }
 
 model Session {

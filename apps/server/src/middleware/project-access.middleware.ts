@@ -17,7 +17,8 @@ export const requireProjectAccess = async (
   next: NextFunction,
 ) => {
   try {
-    const { teamSlug, projectSlug } = req.params;
+    const teamSlug = req.params.teamSlug as string;
+    const projectSlug = req.params.projectSlug as string;
 
     const userId = req.user!.userId;
 

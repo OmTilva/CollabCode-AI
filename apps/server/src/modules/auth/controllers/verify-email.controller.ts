@@ -1,8 +1,12 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { prisma } from "@/lib/prisma.js";
 import { hashToken } from "../utils/token.js";
+import { AuthRequest } from "@/middleware/auth.middleware.js";
 
-export const verifyEmailController = async (req: Request, res: Response) => {
+export const verifyEmailController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
   try {
     const token = req.query.token as string;
 

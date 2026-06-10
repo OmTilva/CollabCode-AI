@@ -3,7 +3,7 @@ import { getTeamBySlugService } from "../services/get-team-by-slug.service.js";
 
 export const getTeamBySlugController = async (req: Request, res: Response) => {
   try {
-    const slug = req.params.slug;
+    const slug = req.params.slug as string;
 
     const team = await getTeamBySlugService(slug);
 

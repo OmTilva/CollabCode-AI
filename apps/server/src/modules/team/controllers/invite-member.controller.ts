@@ -9,7 +9,7 @@ export const inviteMemberController = async (
   res: Response,
 ) => {
   try {
-    const slug = req.params.slug;
+    const slug = req.params.slug as string;
 
     const validatedData = createInviteSchema.parse(req.body);
 

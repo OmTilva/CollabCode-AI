@@ -7,7 +7,7 @@ export const removeProjectMemberController = async (
   res: Response,
 ) => {
   try {
-    const { memberId } = req.params;
+    const memberId = req.params.memberId as string;
 
     await removeProjectMemberService(memberId, req.user!.userId);
 

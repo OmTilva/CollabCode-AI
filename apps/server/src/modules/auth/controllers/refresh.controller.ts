@@ -1,7 +1,8 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { refreshService } from "../services/refresh.service.js";
+import { AuthRequest } from "@/middleware/auth.middleware.js";
 
-export const refreshController = async (req: Request, res: Response) => {
+export const refreshController = async (req: AuthRequest, res: Response) => {
   try {
     const refreshToken = req.cookies.refreshToken;
 

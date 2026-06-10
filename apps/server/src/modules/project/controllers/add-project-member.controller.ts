@@ -8,8 +8,8 @@ export const addProjectMemberController = async (
   res: Response,
 ) => {
   try {
-    const { teamSlug, projectSlug } = req.params;
-
+    const teamSlug = req.params.teamSlug as string;
+    const projectSlug = req.params.projectSlug as string;
     const body = addProjectMemberSchema.parse(req.body);
 
     const member = await addProjectMemberService({

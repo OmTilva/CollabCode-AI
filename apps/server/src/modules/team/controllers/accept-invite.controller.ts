@@ -7,7 +7,7 @@ export const acceptInviteController = async (
   res: Response,
 ) => {
   try {
-    const token = req.params.token;
+    const token = req.params.token as string;
 
     const member = await acceptInviteService({
       token,

@@ -1,10 +1,15 @@
 import { Response } from "express";
 import { updateProjectMemberSchema } from "../validators/update-project-member.validator.js";
 import { updateProjectMemberService } from "../services/update-project-member.service.js";
+import { ProjectRequest } from "@/middleware/project-access.middleware.js";
 
-export const updateProjectMemberController = async (req, res: Response) => {
+export const updateProjectMemberController = async (
+  req: ProjectRequest,
+  res: Response,
+) => {
   try {
-    const { memberId } = req.params;
+    const memberId = req.params.memberId as string;
+
     const body = updateProjectMemberSchema.parse(req.body);
     const member = await updateProjectMemberService(memberId, body.role);
 

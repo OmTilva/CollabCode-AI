@@ -8,7 +8,7 @@ export const getTeamProjectsController = async (
   res: Response,
 ) => {
   try {
-    const { slug } = req.params;
+    const slug = req.params.teamSlug as string;
 
     const team = await prisma.team.findUnique({
       where: {

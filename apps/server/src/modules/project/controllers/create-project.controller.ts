@@ -9,8 +9,8 @@ export const createProjectController = async (
   res: Response,
 ) => {
   try {
-    const { slug } = req.params;
-
+    const slug = req.params.teamSlug as string;
+    
     const validatedData = createProjectSchema.parse(req.body);
 
     const team = await prisma.team.findUnique({

@@ -18,7 +18,7 @@ export const requireTeamAccess = async (
   next: NextFunction,
 ) => {
   try {
-    const slug = req.params.slug;
+    const slug = req.params.slug as string;
 
     const userId = req.user?.userId;
 
