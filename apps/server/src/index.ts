@@ -1,20 +1,23 @@
 import express from "express";
+import http from "http";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-
 import authRoutes from "@/modules/auth/routes/auth.routes.js";
 import teamRoutes from "@/modules/team/routes/team.routes.js";
-import projectRoutes from "./modules/project/routes/project.routes.js";
+import projectRoutes from "@/modules/project/routes/project.routes.js";
 import fileRoutes from "@/modules/file/routes/file.routes.js";
 import activityRoutes from "@/modules/activity/routes/activity.routes.js";
+import { initializeSocket } from "@/socket/index.js";
 
 const app = express();
 
+const server = http.createServer(app);
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   }),
 );
@@ -39,7 +42,9 @@ app.use("/api/v1", projectRoutes);
 app.use("/api/v1", fileRoutes);
 app.use("/api/v1", activityRoutes);
 
+initializeSocket(server);
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
