@@ -4,10 +4,11 @@ import { AuthenticatedSocket } from "./types.js";
 import { socketAuthMiddleware } from "./middleware/auth.middleware.js";
 import { registerProjectHandlers } from "./handlers/project.handler.js";
 import { registerDisconnectHandler } from "./handlers/disconnect.handler.js";
+import { createRedisAdapter } from "@/redis/redis.adapter.js";
 
 export let io: Server;
 
-export const initializeSocket = (server: HttpServer) => {
+export const initializeSocket = async (server: HttpServer) => {
   io = new Server(server, {
     cors: {
       origin: process.env.CLIENT_URL,
@@ -15,6 +16,8 @@ export const initializeSocket = (server: HttpServer) => {
       credentials: true,
     },
   });
+  const adapter = await createRedisAdapter();
+  io.adapter(adapter);
 
   io.use(socketAuthMiddleware);
 

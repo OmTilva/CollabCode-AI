@@ -10,6 +10,12 @@ import projectRoutes from "@/modules/project/routes/project.routes.js";
 import fileRoutes from "@/modules/file/routes/file.routes.js";
 import activityRoutes from "@/modules/activity/routes/activity.routes.js";
 import { initializeSocket } from "@/socket/index.js";
+import { connectRedis, redis } from "@/lib/redis.js";
+import {
+  addUserToProject,
+  getProjectUsers,
+  removeUserFromProject,
+} from "./redis/presence.service.js";
 
 const app = express();
 
@@ -42,9 +48,11 @@ app.use("/api/v1", projectRoutes);
 app.use("/api/v1", fileRoutes);
 app.use("/api/v1", activityRoutes);
 
-initializeSocket(server);
+await connectRedis();
+
+await initializeSocket(server);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}...`);
 });
